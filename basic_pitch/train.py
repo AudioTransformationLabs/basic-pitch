@@ -80,8 +80,12 @@ def main(
     logging.info(f"epochs: {epochs}")
     logging.info(f"steps_per_epoch: {steps_per_epoch}")
     logging.info(f"validation_steps: {validation_steps}")
-    logging.info(f"size_evaluation_callback_datasets: {size_evaluation_callback_datasets}")
-    logging.info(f"using datasets: {datasets_to_use} with frequencies {dataset_sampling_frequency}")
+    logging.info(
+        f"size_evaluation_callback_datasets: {size_evaluation_callback_datasets}"
+    )
+    logging.info(
+        f"using datasets: {datasets_to_use} with frequencies {dataset_sampling_frequency}"
+    )
     logging.info(f"no_contours: {no_contours}")
     logging.info(f"weighted_onset_loss: {weighted_onset_loss}")
     logging.info(f"positive_onset_weight: {positive_onset_weight}")
@@ -116,7 +120,9 @@ def main(
     ) = tf_example_deserialization.prepare_visualization_datasets(
         source,
         batch_size=min(size_evaluation_callback_datasets, MAX_EVAL_CBF_BATCH_SIZE),
-        validation_steps=max(1, size_evaluation_callback_datasets // MAX_EVAL_CBF_BATCH_SIZE),
+        validation_steps=max(
+            1, size_evaluation_callback_datasets // MAX_EVAL_CBF_BATCH_SIZE
+        ),
         datasets_to_use=datasets_to_use,
         dataset_sampling_frequency=dataset_sampling_frequency,
     )
@@ -127,7 +133,9 @@ def main(
         tf.keras.callbacks.TensorBoard(log_dir=tensorboard_log_dir, histogram_freq=1),
         tf.keras.callbacks.EarlyStopping(patience=25, verbose=2),
         tf.keras.callbacks.ReduceLROnPlateau(verbose=1, patience=10, factor=0.5),
-        tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(output, timestamp, "model.best"), save_best_only=True),
+        tf.keras.callbacks.ModelCheckpoint(
+            filepath=os.path.join(output, timestamp, "model.best"), save_best_only=True
+        ),
         tf.keras.callbacks.ModelCheckpoint(
             filepath=os.path.join(output, timestamp, "checkpoints", "model.{epoch:02d}")
         ),
@@ -144,7 +152,9 @@ def main(
     #     loss = models.loss_no_contour(weighted=weighted_onset_loss, positive_weight=positive_onset_weight)
     # else:
     #     loss = models.loss(weighted=weighted_onset_loss, positive_weight=positive_onset_weight)
-    loss = models.loss(weighted=weighted_onset_loss, positive_weight=positive_onset_weight)
+    loss = models.loss(
+        weighted=weighted_onset_loss, positive_weight=positive_onset_weight
+    )
 
     # train
     model.compile(
@@ -171,9 +181,17 @@ def main(
 def console_entry_point() -> None:
     """From pip installed script."""
     parser = argparse.ArgumentParser(description="")
-    parser.add_argument("--source", required=True, help="Path to directory containing train/validation splits.")
-    parser.add_argument("--output", required=True, help="Directory to save the model in.")
-    parser.add_argument("-e", "--epochs", type=int, default=500, help="Number of training epochs.")
+    parser.add_argument(
+        "--source",
+        required=True,
+        help="Path to directory containing train/validation splits.",
+    )
+    parser.add_argument(
+        "--output", required=True, help="Directory to save the model in."
+    )
+    parser.add_argument(
+        "-e", "--epochs", type=int, default=500, help="Number of training epochs."
+    )
     parser.add_argument(
         "-b",
         "--batch-size",
@@ -260,7 +278,9 @@ def console_entry_point() -> None:
             if getattr(args, dataset.lower().replace("-", "_"))
         ]
     )
-    dataset_sampling_frequency = dataset_sampling_frequency / np.sum(dataset_sampling_frequency)
+    dataset_sampling_frequency = dataset_sampling_frequency / np.sum(
+        dataset_sampling_frequency
+    )
 
     assert args.steps_per_epoch is not None
     assert args.validation_steps > 0
@@ -277,7 +297,7 @@ def console_entry_point() -> None:
         args.size_evaluation_callback_datasets,
         datasets_to_use,
         dataset_sampling_frequency,
-        args.dont_sonify,
+        args.no_sonify,
         args.no_contours,
         args.weighted_onset_loss,
         args.positive_onset_weight,
